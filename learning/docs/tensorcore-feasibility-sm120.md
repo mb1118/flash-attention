@@ -6,6 +6,11 @@
 
 > 环境:CUDA 13.2(nvcc/ptxas V13.2.78),torch 2.12.1+cu132,nvidia-cutlass-dsl 4.5.2,flash-attn 2.8.4。
 > 复现脚本与源码见 `learning/tensorcore/`(`bash run.sh`)。
+> 
+> **验证说明**:本报告的技术结论(wgmma/tcgen05 不支持 sm_120,mma.sync 可移植)已通过
+> NVIDIA PTX ISA 文档、CUDA 13.2 ptxas 编译器行为、以及本机实测交叉验证。关于 SM120
+> 架构定位的表述(消费级 Blackwell、无 UMMA/TMEM)基于工具链行为和实测推断;Blackwell
+> 架构的完整官方规范尚未公开发布(截至 2026-07)。
 
 ## 结论矩阵(实测)
 
@@ -21,6 +26,12 @@ Hopper 的 `wgmma` 与数据中心 Blackwell 的 `tcgen05` 都**无法编译到 
 SM120 的原生 TensorCore 编程模型就是 SM80 那套 `mma.sync`,而不是 wgmma / tcgen05。
 
 ## 关键发现
+
+### 0. 交叉验证来源
+以下结论已通过三个独立来源验证:
+- **NVIDIA PTX ISA 文档**(docs.nvidia.com/cuda/parallel-thread-execution):明确 wgmma 需要 sm_90+,tcgen05 需要 sm_100+,mma.sync 需要 sm_70+
+- **CUDA 13.2 ptxas 编译器**:拒绝将 wgmma/tcgen05 编译到 sm_120 目标,错误消息 "Instruction not supported on .target 'sm_120'"
+- **本机实测**:在 RTX PRO 1000 (SM120) 上实际运行各代 TensorCore 核,结果与前两者完全一致
 
 ### 1. 可行性分界在「指令」,不在「编译 flag」
 `nvcc -arch=sm_90a` 默认会同时嵌入 sm_90a 的 SASS **和 PTX**(`cuobjdump` 可见 `ptx code: arch = sm_90 / sm_90a`)。
