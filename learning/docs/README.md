@@ -6,6 +6,7 @@
 
 - [architecture-overview.md](architecture-overview.md) — Flash Attention 各版本(FA2/FA3/FA4/ROCm)实现与 GPU 平台支持全景梳理。
 - [gpu-architecture-evolution.md](gpu-architecture-evolution.md) — NVIDIA GPU 架构演进(Ampere → Hopper → Blackwell)深度分析。
+- [tensorcore-feasibility-sm120.md](tensorcore-feasibility-sm120.md) — 各代 TensorCore(mma.sync / wgmma / tcgen05)在本机 SM120 上的可行性实测。
 
 ## 仓库远端
 
